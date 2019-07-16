@@ -150,6 +150,7 @@ class Sun:
 		T=[0,0]
 		for i in range(0,2):
 			#print("H[i]:",H[i],"RA[i]:",RA[i])
+			# T = H + RA - (0.06571 * t) - 6.622 - lngHour 
 			T[i]=([j + Ttemp[i] - (lngHour) for j in H[i]])
 			#print("The T[i]'s:",T[i])
 		#print("T:",T)
@@ -166,6 +167,9 @@ class Sun:
 				if cosH[i][j] is None:
 					localtime[i][j] = None
 				else:
+					# convert into range [0,24)
+					T[i][j] = T[i][j] % 24
+					#print(T[i][j])
 					localtime[i][j] = dt.timedelta(hours=T[i][j]+self.tOffset)
 		
 		#print(localtime)
@@ -177,6 +181,8 @@ class Sun:
 
 	##########################################
 	### Sun Rise
+	###
+	### returns the sunrise  dictionary. Times are stated in time deltas
 	##########################################
 	def Rise(self):
 		#print(self.Rise)
@@ -184,9 +190,26 @@ class Sun:
 
 	##########################################
 	### Sun Set
+	###
+	### returns the sunrise  dictionary. Times are stated in time deltas
 	##########################################
 	def Set(self):
 		return Sun.SunTime(self)['Set']
 
 
-	
+	##########################################
+	### Length of day
+	###
+	### returns the current length of the day - the time between sunrise and sunset
+	###########################################
+	def LengthOfDay(self):
+		return Sun.Set(self)['Official'] - Sun.Rise(self)['Official']
+
+	##########################################
+	### Time of "noon"
+	###
+	### returns the time when the sun is the highest in the sky
+	##########################################
+	def Transit(self):
+		return Sun.Rise(self)['Official'] + (Sun.LengthOfDay(self) / 2)
+
